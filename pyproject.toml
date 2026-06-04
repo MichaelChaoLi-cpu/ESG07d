@@ -2,7 +2,11 @@
 name = "mproj_template"
 version = "2.0.4"
 description = "My project description"
-dependencies = []
+dependencies = [
+  "pandas",
+  "pyarrow",
+  "python-dotenv",
+]
 
 authors = [
   { name = "Mike C. Li"}

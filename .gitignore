@@ -29,6 +29,7 @@ src/**/*.ipynb
 # Data (managed by DVC, not Git)
 # ========================
 data/**
+!data/**/
 !data/**/*.dvc
 !data/**/.gitignore
 !data/.gitkeep
@@ -54,3 +55,8 @@ slurm-*.out
 .env
 
 prompt.md
+model
+
+old
+
+.*_nodeinfo
