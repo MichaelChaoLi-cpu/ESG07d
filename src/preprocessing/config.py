@@ -1,3 +1,5 @@
+ENERGY_PRICE_THRESHOLD = 0.5
+
 ENERGY_PRICE_KEYWORDS = [
     "Energy Price",
     "Electricity Price",
