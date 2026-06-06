@@ -3,9 +3,12 @@ name = "mproj_template"
 version = "2.0.4"
 description = "My project description"
 dependencies = [
+  "linearmodels>=6.1",
   "pandas",
   "pyarrow",
   "python-dotenv",
+  "statsmodels>=0.14.6",
+  "tqdm>=4.67.3",
 ]
 
 authors = [
