@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">ESG07d Analysis Workflow</title>
+  <desc id="desc">Flow chart showing the ESG07d Energy Price news and ETF impact analysis pipeline.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#3b556e"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1d2b36" flood-opacity="0.16"/>
+    </filter>
+    <style>
+      .bg { fill: #f7f9fb; }
+      .lane-title { font-family: Arial, Helvetica, sans-serif; font-size: 21px; font-weight: 700; fill: #253544; }
+      .box { rx: 16; ry: 16; stroke-width: 2; filter: url(#shadow); }
+      .box-title { font-family: Arial, Helvetica, sans-serif; font-size: 22px; font-weight: 700; fill: #12202d; }
+      .box-text { font-family: Arial, Helvetica, sans-serif; font-size: 17px; fill: #314252; }
+      .arrow { stroke: #3b556e; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="1100"/>
+  <rect x="50" y="42" width="1500" height="1004" rx="24" ry="24" fill="#ffffff" stroke="#dde6ee" stroke-width="2"/>
+
+  <g transform="translate(0,-80)">
+  <rect x="92" y="205" width="424" height="38" rx="19" ry="19" fill="#e8f1f8"/>
+  <text class="lane-title" x="112" y="231">Data preparation</text>
+  <rect x="552" y="205" width="424" height="38" rx="19" ry="19" fill="#eef6ec"/>
+  <text class="lane-title" x="572" y="231">Geographic event discovery</text>
+  <rect x="1012" y="205" width="424" height="38" rx="19" ry="19" fill="#fff3e6"/>
+  <text class="lane-title" x="1032" y="231">Market association and outputs</text>
+
+  <rect class="box" x="92" y="280" width="360" height="150" fill="#eef6fb" stroke="#8eb6d3"/>
+  <text class="box-title" x="116" y="326">Deduplicate corpus</text>
+  <text class="box-text" x="116" y="364">Remove near-duplicate daily news</text>
+  <text class="box-text" x="116" y="390">articles using a +/-7 day window.</text>
+
+  <rect class="box" x="92" y="520" width="360" height="150" fill="#eef6fb" stroke="#8eb6d3"/>
+  <text class="box-title" x="116" y="566">TMPT relevance scoring</text>
+  <text class="box-text" x="116" y="604">Score articles against 10 Energy</text>
+  <text class="box-text" x="116" y="630">Price keywords; flag rel articles.</text>
+
+  <path class="arrow" d="M 272 430 L 272 510"/>
+
+  <rect class="box" x="552" y="280" width="360" height="150" fill="#eff8ef" stroke="#9ac592"/>
+  <text class="box-title" x="576" y="326">Country mention panel</text>
+  <text class="box-text" x="576" y="364">Count country aliases in Energy</text>
+  <text class="box-text" x="576" y="390">Price articles; select top 30.</text>
+
+  <rect class="box" x="552" y="520" width="360" height="150" fill="#eff8ef" stroke="#9ac592"/>
+  <text class="box-title" x="576" y="566">Anomaly consensus</text>
+  <text class="box-text" x="576" y="604">Compute rolling z-scores for W =</text>
+  <text class="box-text" x="576" y="630">14, 21, 28; retain z &gt; 3 dates.</text>
+
+  <rect class="box" x="552" y="760" width="360" height="150" fill="#eff8ef" stroke="#9ac592"/>
+  <text class="box-title" x="576" y="806">TF-IDF event review</text>
+  <text class="box-text" x="576" y="844">Compare anomaly vs. control</text>
+  <text class="box-text" x="576" y="870">windows; human labels 8 events.</text>
+
+  <path class="arrow" d="M 452 595 C 494 595 504 355 542 355"/>
+  <path class="arrow" d="M 732 430 L 732 510"/>
+  <path class="arrow" d="M 732 670 L 732 750"/>
+
+  <rect class="box" x="1012" y="280" width="360" height="150" fill="#fff6e8" stroke="#d8a35e"/>
+  <text class="box-title" x="1036" y="326">Event news counting</text>
+  <text class="box-text" x="1036" y="364">Apply event keyword patterns to</text>
+  <text class="box-text" x="1036" y="390">daily Energy Price rel articles.</text>
+
+  <rect class="box" x="1012" y="520" width="360" height="150" fill="#fff6e8" stroke="#d8a35e"/>
+  <text class="box-title" x="1036" y="566">ETF regression</text>
+  <text class="box-text" x="1036" y="604">Build 14-day rolling features and</text>
+  <text class="box-text" x="1036" y="630">estimate OLS models for 5 ETFs.</text>
+
+  <path class="arrow" d="M 912 835 C 986 835 960 355 1002 355"/>
+  <path class="arrow" d="M 1192 430 L 1192 510"/>
+
+  <rect x="1012" y="760" width="360" height="150" rx="16" ry="16" fill="#f4f6f8" stroke="#aebdca" stroke-width="2" filter="url(#shadow)"/>
+  <text class="box-title" x="1036" y="808">Final exported artifacts</text>
+  <text class="box-text" x="1036" y="846">Figures: monthly trends, map,</text>
+  <text class="box-text" x="1036" y="872">z-score heatmap, workflow chart.</text>
+  <text class="box-text" x="1036" y="898">Tables: events, yearly stats, OLS.</text>
+  <path class="arrow" d="M 1192 670 L 1192 750"/>
+  </g>
+</svg>
