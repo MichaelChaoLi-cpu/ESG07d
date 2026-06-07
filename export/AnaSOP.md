@@ -292,6 +292,7 @@ Each model answers: *After controlling for autoregressive price levels and aggre
 
 ### Step 7 — Figures and Tables
 
+- `data/analysis_workflow.svg` → `export/figures/fig_analysis_workflow.png` workflow chart
 - `src/analyses/fig_prop_monthly.py` → fig_prop_monthly, table_yearly_stats
 - `src/analyses/fig_score_monthly.py` → fig_score_monthly
 - `src/analyses/fig_country_map.py` → fig_country_map
@@ -329,6 +330,7 @@ The analysis repository provides artifacts to Jiazi through the `export/` interf
 
 Exported artifacts include:
 - Figures (PNG/SVG)
+- Workflow chart (`fig_analysis_workflow.png`)
 - Regression / results tables (CSV/LaTeX)
 - Reproducible scripts
 - actionbrief.yaml
@@ -340,3 +342,4 @@ Jiazi uses these artifacts to generate manuscript sections and assemble the rese
 ## 10. Human Debug Notes
 
 - **2026-06-07**: Initial AnaSOP written. Research type confirmed as applied (observational associational study). Six sub-questions covering: (1) Energy Price news coverage growth, (2) semantic concreteness trend via TMPT z-score, (3) country co-mention geography, (4) top-30 country anomaly detection, (5) TF-IDF event identification, (6) ETF regression. Pipeline: deduplication → TMPT scoring (threshold 0.5, 10 Energy Price keywords) → country mention counting → rolling z-score anomaly detection (W=14,21,28, consensus threshold z>3) → per-country TF-IDF on anomaly windows → human event selection (event.txt, 8 events) → event news counting → OLS regression (5 ETFs, 14-day rolling windows). IRN and ISR merged into IRN_ISR in regression. UKR added as 8th event. Full study period 2021-09-01 to 2026-05-01. ETF data available to 2026-05-22.
+- **2026-06-08**: Added `fig_analysis_workflow.png` as a workflow support figure in `export/figures/`, with SVG source stored at `data/analysis_workflow.svg`. The figure summarizes the analysis sequence from data preparation through geographic event discovery, event counting, ETF regression, and final exported artifacts.

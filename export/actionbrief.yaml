@@ -384,6 +384,22 @@ figureDictionary:
       Purple cells indicate anomaly (z > 3 consensus threshold).
     figureSuitableSection: "Results"
 
+  fig_analysis_workflow:
+    figureId: "fig_analysis_workflow"
+    figurePath: "figures/fig_analysis_workflow.png"
+    figureCaption: "Analysis workflow from news corpus to ETF regression"
+    figureAim: >
+      Summarize the end-to-end analytical sequence, showing how the study moves
+      from deduplicated news and TMPT scoring to country anomaly detection,
+      event identification, event news counting, ETF regression, and exported
+      figures and tables.
+    figureExplanation: >
+      Three-column flow chart. The left lane shows data preparation; the middle
+      lane shows geographic event discovery; the right lane shows market
+      association and final exports. Arrows indicate the direction of data flow
+      and analytical dependency across the pipeline.
+    figureSuitableSection: "Methods / Analytical Workflow"
+
 # ─────────────────────────────────────────────────────────────
 # Analysis Structure Brief
 # ─────────────────────────────────────────────────────────────
@@ -396,7 +412,9 @@ analysisStructureBrief:
     prominence of countries in Energy Price discourse; (4) country-level anomaly
     detection using rolling z-scores; (5) TF-IDF identification of high-impact
     international events; and (6) OLS regression of energy ETF prices on event news
-    intensity. All results are observational and associational; no causal claims are made.
+    intensity. A workflow figure documents the end-to-end sequence for manuscript
+    methods presentation. All results are observational and associational; no
+    causal claims are made.
 
   levels:
 
@@ -419,10 +437,13 @@ analysisStructureBrief:
         - "data/processed/dedup_aug_stats.csv (daily totals)"
         - "data/processed/energy_price_score_daily.csv (daily mean scores)"
         - "data/processed/country_daily_mentions.csv (country mentions)"
+        - "figures/fig_analysis_workflow.png (analysis workflow chart)"
       interpretation: >
         The Energy Price relevant corpus (rel) is defined by all 10 TMPT scores
         exceeding 0.5. All downstream analyses are conducted within this rel pool,
-        removing between-topic confounding from the broader news corpus.
+        removing between-topic confounding from the broader news corpus. The
+        workflow chart provides a compact visual map of the full pipeline for
+        readers before they interpret the result-specific figures and tables.
 
     - levelName: "Coverage Growth and Semantic Concreteness"
       levelAim: >
