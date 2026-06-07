@@ -1,48 +1,94 @@
-# [Project Name]
+# ESG07d — Energy Price News and ETF Impact Analysis
 
-> Replace with your project description.
+An observational study of U.S. English-language news coverage of Energy Price topics (2021–2026) and its association with energy ETF price movements.
+
+---
+
+## Research Overview
+
+Six sub-questions addressed in sequence:
+
+1. Has the volume of Energy Price news grown relative to total news (2021–2026)?
+2. Have Energy Price articles become semantically more focused over time (TMPT score trend)?
+3. Which countries are most prominently co-mentioned with Energy Price topics?
+4. Which top-30 countries exhibit anomalous coverage intensity, and when?
+5. What high-impact international events drove the anomalies (TF-IDF)?
+6. What is the measured association between those events and energy ETF prices (OLS)?
+
+**Study type**: Observational, associational. No causal claims.
+**Corpus**: >21M deduplicated U.S. English news articles across 1,697 daily files.
+**Period**: 2021-09-01 to 2026-05-01.
+**ETFs**: ICLN, IXC, VDE, XLE, XOP.
+
+See `docs/AnaSOP.md` for the full research design, variable definitions, and identification strategy.
 
 ---
 
 ## Structure
 
 ```
-myproj/
-├── src/           # Python scripts; experimental *.ipynb allowed but not tracked
-├── data/          # Datasets and reports — DVC-tracked, Git-ignored
-├── etc/           # Shell utilities
-├── docs/          # Documentation (TEAM_RULES, COMMANDS, SOP, etc.)
-├── export/        # Final artifacts for Jiazi (figures, tables, code, metadata)
+ESG07d/
+├── src/
+│   ├── preprocessing/     # Dedup, TMPT scoring, country counts, z-scores, TF-IDF, regression
+│   └── analyses/          # Figure and table generation scripts
+├── data/
+│   ├── raw/               # ETF prices, country alias dictionary (DVC-tracked)
+│   ├── processed/         # Intermediate datasets (DVC-tracked)
+│   └── results/           # Figures and tables (DVC-tracked)
+├── export/                # Final artifacts for Jiazi handoff
+│   ├── figures/           # fig_*.png
+│   ├── tables/            # table_*.xlsx
+│   ├── code/              # Reproducible analysis scripts
+│   ├── AnaSOP.md
+│   └── actionbrief.yaml
+├── docs/
+│   ├── AnaSOP.md          # Research design and workflow
+│   ├── COMMANDS.md        # Detailed command reference
+│   ├── TEAM_RULES.md      # Collaboration conventions
+│   └── INTELLECTUAL_PROPERTY.md
+├── model/                 # SAPTv2_XgbRegressor.joblib
+├── build_export.py        # Assembles export/ for Jiazi handoff
 ├── pyproject.toml
 └── uv.lock
 ```
 
 ---
 
-## Setup (once per project)
+## Analysis Pipeline
+
+| Step | Script(s) | Output |
+|------|-----------|--------|
+| 1. Deduplication | `src/preprocessing/dedup.py` | `data/processed/deduped_aug/`, `dedup_aug_stats.csv` |
+| 2. TMPT scoring | `src/preprocessing/energy_price_scoring.py` (conda tf) | `data/processed/energy_price_scores/` |
+| 3. Country mention counting | `src/preprocessing/country_daily_mentions.py` | `data/processed/country_daily_mentions.csv` |
+| 4. Top-30 selection | `src/preprocessing/top30_countries.py` | `data/processed/top30_countries.csv` |
+| 5. Rolling z-scores | `src/preprocessing/country_rolling_zscore.py` | `data/processed/country_rolling_zscore_W{14,21,28}d.csv` |
+| 6. Anomaly consensus | `src/preprocessing/country_anomaly_consensus.py` | `data/processed/country_anomaly_consensus.csv` |
+| 7. Article index | `src/preprocessing/country_article_index.py` | `data/processed/country_articles/` |
+| 8. TF-IDF | `src/preprocessing/country_event_tfidf.py` | `data/processed/country_tfidf/` |
+| 9. **Human step** | Review TF-IDF top terms → write `event.txt` | 8 events identified |
+| 10. Event news counts | `src/preprocessing/event_news_count.py` | `data/processed/event_news_daily.csv` |
+| 11. ETF regression | `src/preprocessing/etf_regression.py` | `data/results/etf_regression_results.csv` |
+| 12. Figures & tables | `src/analyses/fig_*.py`, `src/analyses/table_*.py` | `data/results/` |
+
+---
+
+## Setup
 
 ```bash
-# 1. Clone and rename
-export myproj=YOUR_PROJECT_NAME
-git clone https://github.com/MichaelChaoLi-cpu/MiliFrame-Template.git
-mv MiliFrame-Template $myproj && cd $myproj
-git remote rename origin upstream
+# 1. Clone
+git clone <repo-url> ESG07d && cd ESG07d
 
-# 2. Link to your own repo
-git remote add origin https://<token>@github.com/<user>/<repo>.git
-git push -u origin main
+# 2. Create .env
+echo "myproj=ESG07d"        > .env
+echo "PROJECT_ROOT=$(pwd)"  >> .env
 
-# 3. Create .env
-echo "myproj=$myproj"       > .env
-echo "PROJECT_ROOT=$(pwd)" >> .env
-
-# 4. Install dependencies (uv reads pyproject.toml + uv.lock)
+# 3. Install dependencies
 uv sync
 pre-commit install
 
-# 5. Initialize DVC
-dvc init
-dvc remote add -d <name> <path>   # HPC: /home/<group>/share/dvc_remote
+# 4. Pull data
+dvc pull
 ```
 
 ---
@@ -50,39 +96,23 @@ dvc remote add -d <name> <path>   # HPC: /home/<group>/share/dvc_remote
 ## Daily Workflow
 
 ```bash
-# Start session
 source .venv/bin/activate
 set -a && source .env && set +a
 git pull && dvc pull
-
-# Work on an experiment
-git checkout dev && git pull
-git checkout -b exp/001-description
-# ... edit scripts in src/ ...
-dvc add data/<large-outputs>
-git add . && git commit -m "exp: 001 - description"
-dvc push
-git checkout dev && git merge exp/001-description
-git push && dvc push
 ```
 
 ---
 
 ## Export for Jiazi
 
-Place final artifacts in `export/` following `docs/LAWS/law_export_folder.yaml`.
-Include `export/actionbrief.yaml` validated against `docs/LAWS/law_actionbrief.yaml`.
+Run `build_export.py` to assemble the `export/` directory:
 
+```bash
+python build_export.py
 ```
-export/
-├── figures/          # figXX_description.png
-├── tables/           # TableX_description.xlsx
-├── code/
-│   └── run_analysis.py
-├── metadata/
-└── actionbrief.yaml
-```
+
+This copies figures, converts tables to `.xlsx`, packages `src/` scripts, writes `export/code/run_analysis.py`, and copies `docs/AnaSOP.md`.
 
 ---
 
-See `docs/TEAM_RULES.md` for full conventions and `docs/COMMANDS.md` for detailed commands.
+See `docs/TEAM_RULES.md` for conventions and `docs/COMMANDS.md` for the full command reference.
