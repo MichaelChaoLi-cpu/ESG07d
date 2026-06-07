@@ -1,0 +1,163 @@
+datasets:
+
+  deduped_news:
+    datasetSourceName: "Deduplicated News Articles"
+    datasetDescription: >
+      Daily parquet files containing deduplicated U.S. English news articles with
+      full text and 768-dimensional BERT embeddings. Primary corpus for all
+      downstream Energy Price scoring and event analyses.
+    datasetAttribute: other
+    datasetProvider: "Internal (raw feed deduplicated by project pipeline)"
+    datasetGenerationInfo: >
+      Raw daily news parquet files are deduplicated using a ±7-day sliding window:
+      first by article_id, then by stripped title (keeping the earliest publication
+      date per title). Produced by src/preprocessing/dedup.py.
+    datasetPeriod: "2021-09-01 to 2026-05-01"
+    datasetScale: "United States, English-language news"
+    datasetSpatialResolution: "National (U.S.)"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      Deduplicated via ±7-day sliding window on article_id and stripped title.
+      21,445,247 articles across 1,721 daily files retained after deduplication.
+      Stored at data/processed/deduped_aug/YYYY-MM-DD.parquet.
+
+  energy_price_scores:
+    datasetSourceName: "Energy Price TMPT Scores"
+    datasetDescription: >
+      Daily parquet files containing TMPTv2 cosine similarity scores for each
+      deduplicated article against 10 Energy Price keywords. Used to classify
+      articles as Energy Price relevant (all 10 scores > 0.5).
+    datasetAttribute: other
+    datasetProvider: "Internal (TMPTv2 model applied by project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/energy_price_scoring.py using the TMPTv2
+      fine-tuned model. Each article's 768-dim embedding is scored against
+      10 Energy Price keyword representations.
+    datasetPeriod: "2021-09-01 to 2026-05-01"
+    datasetScale: "United States, English-language news"
+    datasetSpatialResolution: "National (U.S.)"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      10 TMPT similarity scores per article (score_energy_price, score_electricity_price,
+      score_energy_cost, score_power_price, score_fuel_price, score_energy_tariff,
+      score_electricity_tariff, score_energy_market_price, score_power_cost,
+      score_energy_pricing). Threshold 0.5 on all 10 scores defines relevance flag.
+      Stored at data/processed/energy_price_scores/YYYY-MM-DD.parquet.
+
+  energy_price_score_daily:
+    datasetSourceName: "Energy Price TMPT Daily Mean Scores"
+    datasetDescription: >
+      Wide-format CSV with daily mean TMPTv2 scores and grand mean across all 10
+      Energy Price keywords for relevant articles. Primary source for the semantic
+      concreteness analysis (Q2).
+    datasetAttribute: table
+    datasetProvider: "Internal (project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/energy_price_score_daily.py. For each day,
+      filters parquet to rel articles, computes per-keyword and grand mean scores.
+    datasetPeriod: "2021-09-01 to 2026-05-01"
+    datasetScale: "United States, English-language news"
+    datasetSpatialResolution: "National (U.S.)"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      1,697 rows × 13 columns (date, 10 mean_score_* columns, grand_mean, N_rel).
+      Days with zero rel articles have NaN scores.
+      Stored at data/processed/energy_price_score_daily.csv.
+
+  dedup_aug_stats:
+    datasetSourceName: "Deduplicated Article Daily Statistics"
+    datasetDescription: >
+      Daily summary counts of total deduplicated articles. Used as denominator
+      for Energy Price article proportion (Q1) and energy news density (X_ED).
+    datasetAttribute: table
+    datasetProvider: "Internal (project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/dedup.py as a by-product of deduplication.
+      Records loaded, removed, and saved article counts per day.
+    datasetPeriod: "2021-09-01 to 2026-05-01"
+    datasetScale: "United States, English-language news"
+    datasetSpatialResolution: "National (U.S.)"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      1,721 rows. Column `saved` = final deduplicated article count per day.
+      Stored at data/processed/dedup_aug_stats.csv.
+
+  country_daily_mentions:
+    datasetSourceName: "Country Daily Mentions in Energy Price News"
+    datasetDescription: >
+      Long-format CSV with daily country mention count, proportion, and rel_count
+      for all countries within Energy Price relevant articles. Primary source for
+      geographic prominence analysis (Q3) and anomaly detection (Q4).
+    datasetAttribute: table
+    datasetProvider: "Internal (project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/country_daily_mentions.py using alias-based
+      regex from data/raw/country_dict_0.json applied to rel article text.
+    datasetPeriod: "2021-09-04 to 2026-05-01"
+    datasetScale: "Global (249 countries)"
+    datasetSpatialResolution: "Country"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      415,648 rows. Columns: date, country_id (ISO-3), count, proportion, rel_count.
+      Stored at data/processed/country_daily_mentions.csv.
+
+  country_rolling_zscores:
+    datasetSourceName: "Country Rolling Z-scores"
+    datasetDescription: >
+      Wide-format CSVs with forward rolling z-scores of country mention proportions
+      for three window sizes (W14, W21, W28 days). Used for anomaly detection (Q4).
+    datasetAttribute: table
+    datasetProvider: "Internal (project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/country_rolling_zscore.py. For each window W,
+      forward rolling sum of mention counts divided by rolling rel_count, then
+      z-score normalized across all dates.
+    datasetPeriod: "2021-09-04 to 2026-04-15"
+    datasetScale: "Top 30 countries"
+    datasetSpatialResolution: "Country"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      1,642 rows × 31 columns (date + 30 country names) per window file.
+      Three files: country_rolling_zscore_W14d.csv, W21d.csv, W28d.csv.
+      Anomaly consensus (z > 3 in all three windows) stored at
+      data/processed/country_anomaly_consensus.csv.
+
+  event_daily_counts:
+    datasetSourceName: "Event News Daily Counts"
+    datasetDescription: >
+      Wide-format CSV with daily counts of Energy Price rel articles matching
+      keyword patterns for each of the 8 high-impact international events.
+      Primary input for ETF regression event variables (Q6).
+    datasetAttribute: table
+    datasetProvider: "Internal (project pipeline)"
+    datasetGenerationInfo: >
+      Produced by src/preprocessing/event_news_count.py. For each day, counts
+      rel articles matching event keyword patterns defined in event.txt.
+      IRN and ISR merged into IRN_ISR in regression.
+    datasetPeriod: "2021-09-01 to 2026-05-01"
+    datasetScale: "United States, English-language news"
+    datasetSpatialResolution: "National (U.S.)"
+    datasetTemporalResolution: "Daily"
+    datasetPreprocessingInfo: >
+      1,697 rows × 10 columns (date, 8 event counts, total_relevant_articles).
+      Events: ARE_SAU, ESP, BRA, GEO, DEU, IRN, ISR, UKR.
+      Stored at data/processed/event_news_daily.csv.
+
+  etf_daily_prices:
+    datasetSourceName: "ETF Daily Closing Prices"
+    datasetDescription: >
+      Daily closing prices for five U.S. energy ETFs (ICLN, IXC, VDE, XLE, XOP).
+      Outcome and autoregressive variables in the ETF regression (Q6).
+    datasetAttribute: table
+    datasetProvider: "Market data provider"
+    datasetGenerationInfo: >
+      Downloaded as a single Excel file covering 2021-09-01 to 2026-05-22.
+      Stored at data/raw/ETF_daily_US_2021-09-01_2026-05-22.xlsx.
+    datasetPeriod: "2021-09-01 to 2026-05-22"
+    datasetScale: "United States equity markets"
+    datasetSpatialResolution: "N/A (financial)"
+    datasetTemporalResolution: "Daily (trading days)"
+    datasetPreprocessingInfo: >
+      1,178 trading days × 5 tickers after merging with news data and
+      applying 14-day rolling window feature construction.
+      Non-trading days forward-filled before rolling window computation.

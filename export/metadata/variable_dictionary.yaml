@@ -1,0 +1,110 @@
+variables:
+
+  energy_price_proportion:
+    variableNameInDataset: "energy_price_proportion"
+    variableNameInArticle: "Energy Price article proportion"
+    variableAttribute: continuous
+    variableUnit: "%"
+    variableDescription: >
+      Monthly proportion of Energy Price relevant articles (rel) in total news
+      coverage, expressed as a percentage. Captures aggregate media attention
+      to energy pricing topics over time (Q1).
+    variableSource: dedup_aug_stats
+    observationNumber: 57
+
+  mean_tmpt_score:
+    variableNameInDataset: "grand_mean"
+    variableNameInArticle: "Grand Mean TMPT Score"
+    variableAttribute: continuous
+    variableUnit: "index points [0, 1]"
+    variableDescription: >
+      Daily grand mean of TMPTv2 cosine similarity scores across all 10 Energy
+      Price keywords for rel articles. Monthly Z-score used in visualization.
+      Captures semantic concreteness of Energy Price coverage over time (Q2).
+    variableSource: energy_price_score_daily
+    observationNumber: 1676
+
+  country_mention_rate:
+    variableNameInDataset: "proportion"
+    variableNameInArticle: "Country Mention Rate"
+    variableAttribute: continuous
+    variableUnit: "proportion [0, 1]"
+    variableDescription: >
+      Daily proportion of Energy Price relevant articles that mention a specific
+      country by name or alias. Grand mean across all days used for geographic
+      map (Q3). Rolling z-score used for anomaly detection (Q4).
+    variableSource: country_daily_mentions
+    observationNumber: 50280
+
+  zscore_country:
+    variableNameInDataset: "zscore"
+    variableNameInArticle: "Country Mention Z-score"
+    variableAttribute: continuous
+    variableUnit: "standard deviations"
+    variableDescription: >
+      Forward rolling z-score of country mention proportion, averaged across
+      W14, W21, and W28 day windows. Values above 3 indicate anomalous
+      media attention to a country in Energy Price news (Q4).
+    variableSource: country_rolling_zscores
+    observationNumber: 50280
+
+  X_E_event:
+    variableNameInDataset: "X_E_ARE_SAU / X_E_ESP / X_E_BRA / X_E_GEO / X_E_DEU / X_E_IRN_ISR / X_E_UKR"
+    variableNameInArticle: "Event News Intensity"
+    variableAttribute: continuous
+    variableUnit: "ratio [0, 1]"
+    variableDescription: >
+      14-day rolling ratio of Energy Price rel articles matching a specific
+      event's keyword patterns to total rel articles. Captures the intensity
+      of geopolitical event coverage within Energy Price news (Q6).
+    variableSource: event_daily_counts
+    observationNumber: 1697
+
+  X_ED:
+    variableNameInDataset: "X_ED"
+    variableNameInArticle: "Energy News Density"
+    variableAttribute: continuous
+    variableUnit: "ratio [0, 1]"
+    variableDescription: >
+      14-day rolling ratio of Energy Price rel articles to total articles.
+      Controls for secular changes in overall energy news volume in the ETF
+      regression (Q6).
+    variableSource: event_daily_counts
+    observationNumber: 1697
+
+  X_AR_etf:
+    variableNameInDataset: "X_AR_ICLN / X_AR_IXC / X_AR_VDE / X_AR_XLE / X_AR_XOP"
+    variableNameInArticle: "AR(ETF)"
+    variableAttribute: continuous
+    variableUnit: "USD"
+    variableDescription: >
+      14-day rolling mean of ETF closing price ending on day t (mean of [t-13, t]).
+      Serves as the autoregressive price control in the ETF regression, capturing
+      baseline price momentum (Q6).
+    variableSource: etf_daily_prices
+    observationNumber: 1178
+
+  Y_etf:
+    variableNameInDataset: "Y_ICLN / Y_IXC / Y_VDE / Y_XLE / Y_XOP"
+    variableNameInArticle: "Forward ETF Price"
+    variableAttribute: continuous
+    variableUnit: "USD"
+    variableDescription: >
+      14-day forward rolling mean of ETF closing price starting from t+1
+      (mean of [t-12, t+1]). Outcome variable in the ETF regression; captures
+      near-term price response to event news intensity (Q6).
+    variableSource: etf_daily_prices
+    observationNumber: 1178
+
+  delta_event:
+    variableNameInDataset: "Coefficient (X_E_*)"
+    variableNameInArticle: "Event Impact Coefficient (δ)"
+    variableAttribute: continuous
+    variableUnit: "USD per unit ratio"
+    variableDescription: >
+      OLS regression coefficient for each event variable on each ETF price.
+      Measures the association between a 1-unit increase in event news intensity
+      and the 14-day forward mean ETF price, conditional on autoregressive price
+      levels and energy news density. 5 ETFs × 7 events = 35 coefficients (Q6).
+    variableSource: etf_daily_prices
+    observationNumber: 35
